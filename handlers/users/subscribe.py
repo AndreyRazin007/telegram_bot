@@ -1,8 +1,9 @@
 from aiogram import types
-from loader import dispatcher
-from loader import bot
+from aiogram.dispatcher.dispatcher import Command
 
-@dispatcher.message_handler(commands=["subscribe"])
+from loader import dispatcher
+
+@dispatcher.message_handler(Command("subscribe"))
 async def command_error(message: types.Message):
     await message.answer("Ссылка на телеграмм канал:\n")
 
