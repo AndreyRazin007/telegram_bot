@@ -1,6 +1,9 @@
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
 
+from image_processing.processing import Processing
+from serialization.serialization_images import get_user_data
+
 import os
 
 from aiogram import executor, Dispatcher, types
@@ -69,21 +72,149 @@ async def select_theme(query: types.CallbackQuery):
 
     await query.message.answer("Выберите тему для стикерпака", reply_markup=keyboard)
 
-def get_user_data(fullname: str, theme: str, photo: str,
-                  upload_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')):
-    user = UserData(full_name=fullname, photo_name=photo, upload_date=upload_date)
-    json_data = json.dumps(user.__dict__, indent=4, separators=(", ", ": "))
+@dispatcher.callback_query_handler(lambda query: query.data == "computer_technology")
+async def sending_photos_computer_technology(query: types.CallbackQuery):
+    source_photo_1 = types.InputFile(path_or_bytesio="./media/themes/computer_technology/image_1.jpg")
+    source_photo_2 = types.InputFile(path_or_bytesio="./media/themes/computer_technology/image_2.jpg")
+    source_photo_3 = types.InputFile(path_or_bytesio="./media/themes/computer_technology/image_3.jpg")
 
-    save_directory = f"json/{theme}{fullname}"
+    source_album = types.MediaGroup()
+    source_album.attach_photo(photo=source_photo_1)
+    source_album.attach_photo(photo=source_photo_2)
+    source_album.attach_photo(photo=source_photo_3)
 
-    if not os.path.exists(save_directory):
-        os.makedirs(save_directory)
+    await query.message.reply("Исходные фотографии темы:")
+
+    await query.message.answer_media_group(media=source_album)
+
+    username = query.from_user.full_name
+    directory = f"./media/users_photo_id/{username}"
+
+    file_list = os.listdir(directory)
+    for file in file_list:
+        photo = file
     
-    file_name = f"{fullname}.json"
-    file_path = f"{save_directory}/{file_name}"
+    processing = Processing()
+    processing.save_swap_faces(f"{directory}/{photo}",
+                               "./media/themes/computer_technology/image_1.png",
+                               "computer_technology", "image_1.png")
+    processing.save_swap_faces(f"{directory}/{photo}", "./media/themes/computer_technology/image_2.png",
+                               "computer_technology", "image_2.png")
+    processing.save_swap_faces(f"{directory}/{photo}", "./media/themes/computer_technology/image_3.png",
+                               "computer_technology", "image_3.png")
 
-    with open(file_path, "w") as file:
-        file.write(json_data)
+    # await query.message.reply("Ваш стикерпак:")
+
+    # sticker_1 = types.InputFile(path_or_bytesio="./media/save_users_stickers/computer_technology/image_1.jpg")
+    # sticker_2 = types.InputFile(path_or_bytesio="./media/save_users_stickers/computer_technology/image_2.jpg")
+    # sticker_3 = types.InputFile(path_or_bytesio="./media/save_users_stickers/computer_technology/image_3.jpg")
+
+    # sticker_album = types.MediaGroup()
+    # sticker_album.attach_photo(photo=sticker_1)
+    # sticker_album.attach_photo(photo=sticker_2)
+    # sticker_album.attach_photo(photo=sticker_3)
+
+    # await query.message.answer_media_group(media=sticker_album)
+
+    # get_user_data(fullname=f"{query.from_user.full_name}_1",
+    #                     theme=query.data, photo="./media/themes/computer_technology/image_1.png")
+
+    # get_user_data(fullname=f"{query.from_user.full_name}_2",
+    #                     theme=query.data, photo="./media/themes/computer_technology/image_2.png")
+
+    # get_user_data(fullname=f"{query.from_user.full_name}_3",
+    #                     theme=query.data, photo="./media/themes/computer_technology/image_3.png")
+
+    keyboard = types.InlineKeyboardMarkup(row_width=3)
+    button_computer_technology = types.InlineKeyboardButton(text="Компьютерные технологии",
+                                                            callback_data="computer_technology")
+    button_emotions_and_expressions = types.InlineKeyboardButton(text="Эмоции и выражения",
+                                                                 callback_data="emotions_and_expressions")
+    button_phrases_and_memes = types.InlineKeyboardButton(text="Фразы и мемы",
+                                                          callback_data="phrases_and_memes")
+
+    keyboard.add(button_computer_technology)
+    keyboard.add(button_emotions_and_expressions)
+    keyboard.add(button_phrases_and_memes)
+
+    await query.message.answer("Выберите тему для стикерпака", reply_markup=keyboard)
+
+
+@dispatcher.callback_query_handler(lambda query: query.data == "emotions_and_expressions")
+async def sending_photos_emotions_and_expressions(query: types.CallbackQuery):
+    photo_1 = types.InputFile(path_or_bytesio="./media/themes/emotions_and_expressions/image_1.png")
+    photo_2 = types.InputFile(path_or_bytesio="./media/themes/emotions_and_expressions/image_2.png")
+    photo_3 = types.InputFile(path_or_bytesio="./media/themes/emotions_and_expressions/image_3.png")
+
+    album = types.MediaGroup()
+
+    album.attach_photo(photo=photo_1)
+    album.attach_photo(photo=photo_2)
+    album.attach_photo(photo=photo_3)
+
+    await query.message.answer_media_group(media=album)
+
+    get_user_data(fullname=query.from_user.full_name,
+                        theme=query.data, photo="./media/themes/emotions_and_expressions/image_1.png")
+
+    get_user_data(fullname=query.from_user.full_name,
+                        theme=query.data, photo="./media/themes/emotions_and_expressions/image_2.png")
+
+    get_user_data(fullname=query.from_user.full_name,
+                        theme=query.data, photo="./media/themes/emotions_and_expressions/image_3.png")
+
+    keyboard = types.InlineKeyboardMarkup(row_width=3)
+    button_computer_technology = types.InlineKeyboardButton(text="Компьютерные технологии",
+                                                            callback_data="computer_technology")
+    button_emotions_and_expressions = types.InlineKeyboardButton(text="Эмоции и выражения",
+                                                                 callback_data="emotions_and_expressions")
+    button_phrases_and_memes = types.InlineKeyboardButton(text="Фразы и мемы",
+                                                          callback_data="phrases_and_memes")
+
+    keyboard.add(button_computer_technology)
+    keyboard.add(button_emotions_and_expressions)
+    keyboard.add(button_phrases_and_memes)
+
+    await query.message.answer("Выберите тему для стикерпака", reply_markup=keyboard)
+
+
+@dispatcher.callback_query_handler(lambda query: query.data == "phrases_and_memes")
+async def sending_photos_phrases_and_memes(query: types.CallbackQuery):
+    photo_1 = types.InputFile(path_or_bytesio="./media/themes/phrases_and_memes/image_1.png")
+    photo_2 = types.InputFile(path_or_bytesio="./media/themes/phrases_and_memes/image_2.png")
+    photo_3 = types.InputFile(path_or_bytesio="./media/themes/phrases_and_memes/image_3.png")
+
+    album = types.MediaGroup()
+
+    album.attach_photo(photo=photo_1)
+    album.attach_photo(photo=photo_2)
+    album.attach_photo(photo=photo_3)
+
+    await query.message.answer_media_group(media=album)
+
+    get_user_data(fullname=query.from_user.full_name,
+                        theme=query.data, photo="./media/themes/phrases_and_memes/image_1.png")
+
+    get_user_data(fullname=query.from_user.full_name,
+                        theme=query.data, photo="./media/themes/phrases_and_memes/image_2.png")
+
+    get_user_data(fullname=query.from_user.full_name,
+                        theme=query.data, photo="./media/themes/phrases_and_memes/image_3.png")
+
+    keyboard = types.InlineKeyboardMarkup(row_width=3)
+    button_computer_technology = types.InlineKeyboardButton(text="Компьютерные технологии",
+                                                            callback_data="computer_technology")
+    button_emotions_and_expressions = types.InlineKeyboardButton(text="Эмоции и выражения",
+                                                                 callback_data="emotions_and_expressions")
+    button_phrases_and_memes = types.InlineKeyboardButton(text="Фразы и мемы",
+                                                          callback_data="phrases_and_memes")
+    
+    keyboard.add(button_computer_technology)
+    keyboard.add(button_emotions_and_expressions)
+    keyboard.add(button_phrases_and_memes)
+
+    await query.message.answer("Выберите тему для стикерпака", reply_markup=keyboard)
+
 
 async def on_startup(dispatcher: Dispatcher):
     await on_startup_notify(dispatcher=dispatcher)

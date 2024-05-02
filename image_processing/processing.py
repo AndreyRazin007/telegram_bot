@@ -1,34 +1,55 @@
 import cv2
-import dlib
-from imutils import face_utils
-import matplotlib.pyplot as pyplot
+import os
 
-font = cv2.FONT_HERSHEY_SIMPLEX
 
-cascade_path = "./models/haarcascade_frontalface_default.xml"
-eye_path = "./models/haarcascade_eye.xml"
-smile_path = "./models/haarcascade_smile.xml"
+class Processing:
+    def __init__(self):
+        model_path = os.path.dirname(os.path.realpath(".\\models\\haarcascade_frontalface_default.xml"))
+        path_model = f"{model_path}\\haarcascade_frontalface_default.xml"
 
-face_cascade = cv2.CascadeClassifier(cascade_path)
-eye_cascade = cv2.CascadeClassifier(eye_path)
-smile_cascade = cv2.CascadeClassifier(smile_path)
+        self.face_cascade = cv2.CascadeClassifier(path_model)
 
-gray = cv2.imread("./Screenshot_1.png")
 
-pyplot.figure(figsize=(12, 8))
-pyplot.imshow(gray, cmap="gray")
-pyplot.show()
+    def save_swap_faces(self, source_image_file, replacement_image_file,
+                        theme, result_image):
+        source_image = cv2.imread(source_image_file)
+        replacement_image = cv2.imread(replacement_image_file)
 
-faces = face_cascade.detectMultiScale(
-    gray,
-    scaleFactor=1.1,
-    minNeighbors=5,
-    flags=cv2.CASCADE_SCALE_IMAGE
-)
+        result = replacement_image.copy()
 
-for (x, y, w, h) in faces:
-    cv2.rectangle(gray, (x, y), (x + w, y + h), (255, 255, 255), 3)
+        gray_source_image = cv2.cvtColor(source_image, cv2.COLOR_BGR2GRAY)
+        gray_replacement_image = cv2.cvtColor(replacement_image, cv2.COLOR_BGR2GRAY)
 
-pyplot.figure(figsize=(12, 8))
-pyplot.imshow(gray, cmap="gray")
-pyplot.show()
+        source_faces = self.face_cascade.detectMultiScale(gray_source_image,
+                                                          scaleFactor=1.1,
+                                                          minNeighbors=5,
+                                                          flags=cv2.CASCADE_SCALE_IMAGE,
+                                                          minSize=(30, 30))
+        replacement_faces = self.face_cascade.detectMultiScale(gray_replacement_image,
+                                                               scaleFactor=1.1,
+                                                               minNeighbors=5,
+                                                               flags=cv2.CASCADE_SCALE_IMAGE,
+                                                               minSize=(30, 30))
+
+        if len(source_faces) > 0 and len(replacement_faces) > 0:
+            (x1, y1, w1, h1) = source_faces[0]
+            (x2, y2, w2, h2) = replacement_faces[0]
+
+            source_face = source_image[y1:y1+h1, x1:x1+w1]
+
+            resized_face = cv2.resize(source_face, (w2, h2))
+
+            result[y2:y2+h2, x2:x2+w2] = resized_face
+
+            cv2.imshow("Original Image 1", source_image)
+            cv2.imshow("Original Image 2", replacement_image)
+            cv2.imshow("Face Replaced Image", result)
+
+            filename = f".\\media\\save_users_stickers\\{theme}\\{result_image}"
+            cv2.imwrite(filename, result)
+            print(f"Результат сохранен в файле: {filename}")
+
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+        else:
+            print("Не удалось обнаружить лица на обоих изображениях.")
