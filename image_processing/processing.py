@@ -1,5 +1,5 @@
 import cv2
-import matplotlib.pyplot as pyplot
+import os
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -11,33 +11,11 @@ face_cascade = cv2.CascadeClassifier(cascade_path)
 eye_cascade = cv2.CascadeClassifier(eye_path)
 smile_cascade = cv2.CascadeClassifier(smile_path)
 
-# gray = cv2.imread("./media/themes/emotions_and_expressions/image_1.png")
+absolute_path_image_1 = os.path.dirname(os.path.realpath("face.jpg"))
+absolute_path_image_2 = os.path.dirname(os.path.realpath("swap_face.jpg"))
 
-# pyplot.figure(figsize=(12, 8))
-# pyplot.imshow(gray, cmap="gray")
-# pyplot.show()
-
-# faces = face_cascade.detectMultiScale(
-#     gray,
-#     scaleFactor=1.1,
-#     minNeighbors=5,
-#     flags=cv2.CASCADE_SCALE_IMAGE
-# )
-
-# for (x, y, w, h) in faces:
-#     cv2.rectangle(gray, (x, y), (x + w, y + h), (255, 255, 255), 3)
-
-# pyplot.figure(figsize=(12, 8))
-# pyplot.imshow(gray, cmap="gray")
-# pyplot.show()
-
-import cv2
-
-import cv2
-import matplotlib.pyplot as pyplot
-
-image_1 = cv2.imread("D:\\Programing\\Python\\telegram_bot\\face.jpg")
-image_2 = cv2.imread("D:\\Programing\\Python\\telegram_bot\\swap_face.jpg")
+image_1 = cv2.imread(f"{absolute_path_image_1}\\face.jpg")
+image_2 = cv2.imread(f"{absolute_path_image_2}\\swap_face.jpg")
 
 result_1 = image_1.copy()
 result_2 = image_2.copy()
@@ -69,3 +47,4 @@ if len(faces_1) > 0 and len(faces_2) > 0:
     cv2.destroyAllWindows()
 else:
     print("Не удалось обнаружить лица на обоих изображениях.")
+
